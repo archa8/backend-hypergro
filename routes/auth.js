@@ -7,7 +7,12 @@ const auth = require('../middleware/auth');
 // Register new user
 router.post('/register', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, listedBy } = req.body;
+
+        // Validate listedBy
+        if (!['Builder', 'Owner', 'Agent'].includes(listedBy)) {
+            return res.status(400).json({ message: 'Invalid listedBy value' });
+        }
 
         // Check if user already exists
         const existingUser = await User.findOne({ email });
@@ -16,7 +21,7 @@ router.post('/register', async (req, res) => {
         }
 
         // Create new user
-        const user = new User({ email, password });
+        const user = new User({ email, password, listedBy });
         await user.save();
 
         // Generate token

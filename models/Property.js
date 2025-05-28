@@ -41,7 +41,11 @@ const propertySchema = new mongoose.Schema({
     },
     amenities: {
         type: String,
-        required: true
+        required: true,
+        validate: {
+            validator: (v) => v.split('|').length > 0, // Ensure at least one amenity
+            message: 'Amenities must be a pipe-separated string'
+        }
     },
     furnished: {
         type: String,
@@ -49,7 +53,7 @@ const propertySchema = new mongoose.Schema({
         required: true
     },
     availableFrom: {
-        type: String,
+        type: Date,
         required: true
     },
     listedBy: {
@@ -59,7 +63,11 @@ const propertySchema = new mongoose.Schema({
     },
     tags: {
         type: String,
-        required: true
+        required: true,
+        validate: {
+            validator: (v) => v.split('|').length > 0, // Ensure at least one tag
+            message: 'Tags must be a pipe-separated string'
+        }
     },
     colorTheme: {
         type: String,
@@ -100,4 +108,4 @@ propertySchema.index({ price: 1 });
 propertySchema.index({ rating: -1 });
 propertySchema.index({ listedBy: 1 });
 
-module.exports = mongoose.model('Property', propertySchema); 
+module.exports = mongoose.model('Property', propertySchema, 'property'); 

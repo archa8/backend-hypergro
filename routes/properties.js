@@ -3,11 +3,25 @@ const router = express.Router();
 const Property = require('../models/Property');
 const auth = require('../middleware/auth');
 const redisClient = require('../config/redis');
+const Counter = require('../models/Counter');
+
+// Get next sequence number for property ID
+const getNextSequence = async (name) => {
+  const ret = await Counter.findByIdAndUpdate(
+    name,
+    { $inc: { seq: 1 } },
+    { new: true }
+  );
+  return ret.seq;
+};
 
 // Create new property
 router.post('/', auth, async (req, res) => {
     try {
+        const nextId = await getNextSequence('propertyId');
+        const propertyId = `PROP${nextId}`;
         const property = new Property({
+            _id: propertyId,
             ...req.body,
             listedBy: req.user.listedBy // Use listedBy from user
         });

@@ -16,8 +16,8 @@ const userSchema = new mongoose.Schema({
     },
     listedBy: {
         type: String,
-        enum: ['Builder', 'owner', 'agent'],
-        required: true
+        enum: ['Builder', 'Owner', 'Agent'],
+        default: null
     },
     favorites: [{
         type: String,
