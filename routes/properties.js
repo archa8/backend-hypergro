@@ -23,7 +23,7 @@ router.post('/', auth, async (req, res) => {
         const property = new Property({
             _id: propertyId,
             ...req.body,
-            listedBy: req.user._id // Assuming req.user._id is the ID of the user listing the property
+            listedBy: req.user.listedBy // Use listedBy from user
         });
         await property.save();
         
@@ -166,7 +166,7 @@ router.patch('/:id', auth, async (req, res) => {
         }
         
         // Check if user is authorized (same listedBy as property)
-        if (!property.listedBy.equals(req.user._id)) {
+        if (property.listedBy !== req.user.listedBy) {
             return res.status(403).json({ message: 'Not authorized to update this property' });
         }
         
@@ -192,7 +192,7 @@ router.delete('/:id', auth, async (req, res) => {
         }
         
         // Check if user is authorized (same listedBy as property)
-        if (!property.listedBy.equals(req.user._id)) {
+        if (property.listedBy !== req.user.listedBy) {
             return res.status(403).json({ message: 'Not authorized to delete this property' });
         }
         

@@ -57,8 +57,8 @@ const propertySchema = new mongoose.Schema({
         required: true
     },
     listedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: String,
+        enum: ['Builder', 'owner', 'agent'],
         required: true
     },
     tags: {
