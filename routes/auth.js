@@ -9,9 +9,19 @@ router.post('/register', async (req, res) => {
     try {
         const { email, password, listedBy } = req.body;
 
+        const validRoles = {
+            'builder': 'Builder',
+            'owner': 'Owner',
+            'agent': 'Agent'
+        };
+        const normalizedRole = validRoles[listedBy.toLowerCase()];
+
         // Validate listedBy
-        if (!['Builder', 'Owner', 'Agent'].includes(listedBy)) {
-            return res.status(400).json({ message: 'Invalid listedBy value' });
+        /*if (!['Builder', 'Owner', 'Agent'].includes(listedBy)) {
+            return res.status(400).json({ message: 'Invalid user role' });
+        }*/
+        if (!normalizedRole) {
+            return res.status(400).json({ message: 'Invalid user role' });
         }
 
         // Check if user already exists
@@ -21,13 +31,18 @@ router.post('/register', async (req, res) => {
         }
 
         // Create new user
-        const user = new User({ email, password, listedBy });
+        /* const user = new User({ email, password, listedBy }); */
+        const user = new User({ 
+            email, 
+            password, 
+            listedBy: normalizedRole
+        });
         await user.save();
 
         // Generate token
         const token = jwt.sign(
             { userId: user._id },
-            process.env.JWT_SECRET || 'your-secret-key',
+            process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
 
@@ -57,7 +72,7 @@ router.post('/login', async (req, res) => {
         // Generate token
         const token = jwt.sign(
             { userId: user._id },
-            process.env.JWT_SECRET || 'your-secret-key',
+            process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
 
@@ -68,8 +83,13 @@ router.post('/login', async (req, res) => {
 });
 
 // Get current user
-router.get('/me', auth, async (req, res) => {
+router.get('/me', auth, (req, res) => {
     res.json(req.user);
+});
+
+// Logout user
+router.post('/logout', auth, (req, res) => {
+    res.json({ message: 'Successfully logged out. Please remove your token from client storage.' });
 });
 
 module.exports = router; 

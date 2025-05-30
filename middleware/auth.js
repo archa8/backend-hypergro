@@ -9,14 +9,18 @@ const auth = async (req, res, next) => {
             throw new Error();
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-        const user = await User.findOne({ _id: decoded.userId });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        /* const user = await User.findOne({ _id: decoded.userId }); */
+        const user = await User.findById(decoded.userId).select('-password');
 
         if (!user) {
             throw new Error();
         }
 
-        req.user = user;
+        req.user = {
+            _id: user._id,
+            listedBy: user.listedBy  // Include the role
+        };
         req.token = token;
         next();
     } catch (error) {

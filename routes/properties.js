@@ -23,7 +23,7 @@ router.post('/', auth, async (req, res) => {
         const property = new Property({
             _id: propertyId,
             ...req.body,
-            listedBy: req.user.listedBy // Use listedBy from user
+            listedBy: req.user.listedBy // Use the listedBy from the authenticated user
         });
         await property.save();
         
