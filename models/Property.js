@@ -49,7 +49,7 @@ const propertySchema = new mongoose.Schema({
     },
     furnished: {
         type: String,
-        enum: ['Furnished', 'Unfurnished', 'Semi-Furnished'],
+        enum: ['Furnished', 'Unfurnished', 'Semi'],
         required: true
     },
     availableFrom: {
@@ -58,7 +58,7 @@ const propertySchema = new mongoose.Schema({
     },
     listedBy: {
         type: String,
-        enum: ['Builder', 'owner', 'agent'],
+        enum: ['Builder', 'Owner', 'Agent'],
         required: true
     },
     tags: {
