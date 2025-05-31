@@ -16,16 +16,55 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Add property to favorites
-router.post('/:propertyId', auth, async (req, res) => {
+router.post('/:propertyId?', auth, async (req, res) => {
     try {
-        const property = await Property.findById(req.params.propertyId);
+        if (req.body.propertyIds) {
+            if (!Array.isArray(req.body.propertyIds)) {
+                return res.status(400).json({ message: 'propertyIds must be an array' });
+            }
+            
+            const user = await User.findById(req.user._id);
+            const properties = await Property.find({ _id: { $in: req.body.propertyIds } });
+            const validIds = properties.map(p => p._id.toString());
+            
+            // Filter out invalid and existing favorites
+            const newFavorites = req.body.propertyIds.filter(id => 
+                validIds.includes(id) && 
+                !user.favorites.includes(id)
+            );
+            
+            if (newFavorites.length === 0) {
+                return res.status(400).json({ 
+                    message: 'No new valid properties to add',
+                    duplicates: req.body.propertyIds.filter(id => user.favorites.includes(id)),
+                    invalid: req.body.propertyIds.filter(id => !validIds.includes(id))
+                });
+            }
+            
+            user.favorites.push(...newFavorites);
+            await user.save();
+            
+            return res.json({
+                message: `Added ${newFavorites.length} properties to favorites`,
+                added: newFavorites,
+                duplicates: req.body.propertyIds.filter(id => user.favorites.includes(id) && !newFavorites.includes(id)),
+                invalid: req.body.propertyIds.filter(id => !validIds.includes(id))
+            });
+        }
+        
+        // Handle single property from URL parameter
+        const propertyId = req.params.propertyId;
+        if (!propertyId) {
+            return res.status(400).json({ message: 'Property ID required' });
+        }
+        
+        const property = await Property.findById(propertyId);
         if (!property) {
             return res.status(404).json({ message: 'Property not found' });
         }
 
         const user = await User.findById(req.user._id);
         
-        // Check if property is already in favorites
         if (user.favorites.includes(property._id)) {
             return res.status(400).json({ message: 'Property already in favorites' });
         }
