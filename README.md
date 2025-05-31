@@ -95,7 +95,13 @@ JWT_SECRET=your_strong_secret_here
 PORT=3000
 ```
 
-4. Start the development server:
+4. Run the `initializeCounter.js` file:
+```bash
+npm run initializeCounter.js
+```
+This needs to be done only once before running the main file `server.js`, so that the `_id` value for the properties gets initialized and then is automatically incremented/decremented when new properties are added/removed.
+
+5. Start the development server:
 ```bash
 npm run dev
 ```
