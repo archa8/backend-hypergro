@@ -3,12 +3,13 @@ const router = express.Router();
 const User = require('../models/User');
 const Property = require('../models/Property');
 const auth = require('../middleware/auth');
+const redisClient = require('../utils/redis');
 
 // Get user's favorites
 router.get('/', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user._id)
-            .populate('favorites');
+        const user = await User.findById(req.user._id).populate('favorites');
+        await redisClient.setEx(cacheKey, 300, JSON.stringify(user.favorites));
         res.json(user.favorites);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -71,6 +72,8 @@ router.post('/:propertyId?', auth, async (req, res) => {
 
         user.favorites.push(property._id);
         await user.save();
+        // Invalidate cache for favorites
+        await redisClient.del(`favorites:${req.user._id}`);
 
         res.json({ message: 'Property added to favorites' });
     } catch (error) {

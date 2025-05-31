@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Property = require('../models/Property');
 const auth = require('../middleware/auth');
-const redisClient = require('../config/redis');
+const redisClient = require('../utils/redis');
 const Counter = require('../models/Counter');
 
 // Get next sequence number for property ID
@@ -144,12 +144,18 @@ router.get('/', async (req, res) => {
 // Get single property
 router.get('/:id', async (req, res) => {
     try {
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            return res.json(JSON.parse(cachedData));
+        }
+
         const property = await Property.findById(req.params.id);
             
         if (!property) {
             return res.status(404).json({ message: 'Property not found' });
         }
         
+        await redisClient.setEx(cacheKey, 300, JSON.stringify(property));
         res.json(property);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -174,7 +180,10 @@ router.patch('/:id', auth, async (req, res) => {
         await property.save();
         
         // Invalidate cache
-        await redisClient.del('properties:*');
+        await Promise.all([
+            redisClient.del(`property:${req.params.id}`),
+            redisClient.del('properties:*') // Wildcard for all search results
+        ]);
         
         res.json(property);
     } catch (error) {

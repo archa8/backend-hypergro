@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Property = require('../models/Property');
 const Recommendation = require('../models/Recommendation');
 const auth = require('../middleware/auth');
+const redisClient = require('../utils/redis');
 
 // Search for users by email
 router.get('/search-users', auth, async (req, res) => {
@@ -52,6 +53,8 @@ router.post('/send', auth, async (req, res) => {
         });
 
         await recommendation.save();
+        // Invalidate cache for received recommendations of the recipient
+        await redisClient.del(`recommendations:received:${toUserId}`);
 
         res.status(201).json(recommendation);
     } catch (error) {
@@ -61,12 +64,20 @@ router.post('/send', auth, async (req, res) => {
 
 // Get recommendations received by current user
 router.get('/received', auth, async (req, res) => {
+    const cacheKey = `recommendations:received:${req.user._id}`
     try {
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            return res.json(JSON.parse(cachedData));
+        }
+        // Fetch recommendations from the database
         const recommendations = await Recommendation.find({ toUser: req.user._id })
             .populate('fromUser', 'email listedBy')
             .populate('property')
             .sort({ createdAt: -1 });
 
+        // Cache the recommendations with a 5-minute expiration    
+        await redisClient.setEx(cacheKey, 300, JSON.stringify(recommendations));
         res.json(recommendations);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -101,7 +112,7 @@ router.patch('/:id/read', auth, async (req, res) => {
 
         recommendation.isRead = true;
         await recommendation.save();
-
+        await redisClient.del(`recommendations:received:${req.user._id}`);
         res.json(recommendation);
     } catch (error) {
         res.status(400).json({ message: error.message });
