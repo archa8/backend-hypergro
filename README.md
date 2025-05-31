@@ -186,7 +186,7 @@ Redis is used to optimize these operations:
 | Operation | Cache Key Pattern | TTL |
 |-----------|-------------------|-----|
 | Property Search | `properties:<query_hash>` | 5 min |
-| Single Property | `property:<id>` | 10 min |
+| Single Property | `property:<id>` | 5 min |
 | User Favorites | `favorites:<userId>` | 5 min |
 | Recommendations | `recommendations:received:<userId>` | 5 min |
 
