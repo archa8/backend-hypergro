@@ -78,8 +78,8 @@ A robust backend API for property listings with advanced search, user authentica
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/property-api.git
-cd property-api
+git clone https://github.com/your-username/backend-hypergro.git
+cd backend-hypergro
 ```
 
 2. Install dependencies:
@@ -89,7 +89,7 @@ npm install
 
 3. Create `.env` file:
 ```env
-MONGODB_URI=mongodb://localhost:27017/property_db
+MONGODB_URI=mongodb://localhost:27017/property
 REDIS_URL=redis://localhost:6379
 JWT_SECRET=your_strong_secret_here
 PORT=3000
