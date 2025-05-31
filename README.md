@@ -134,8 +134,8 @@ npm start
 
 ### Docker Deployment
 ```bash
-docker build -t property-api .
-docker run -p 3000:3000 -d property-api
+docker build -t backend-hypergro .
+docker run -p 3000:3000 -d backend-hypergro
 ```
 
 ## Database Schema
