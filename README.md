@@ -23,12 +23,9 @@ A robust backend API for property listings with advanced search, user authentica
 - **Database**: MongoDB (with Mongoose ODM)
 - **Caching**: Redis 7.x
 - **Authentication**: JWT
-- **API Documentation**: OpenAPI (Swagger)
-- **Testing**: Jest, Supertest
+- **API Documentation**: OpenAPI
 
 ## API Documentation
-
-[![Swagger API Docs](https://img.shields.io/badge/View-Full%20API%20Documentation-blue)](https://your-deployed-url/api-docs)
 
 ### Authentication Endpoints
 
