@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Counter = require('./models/Counter');
 
-mongoose.connect('mongodb://localhost:27017/property', {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })

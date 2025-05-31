@@ -89,7 +89,7 @@ router.get('/me', auth, (req, res) => {
 
 // Logout user
 router.post('/logout', auth, (req, res) => {
-    res.json({ message: 'Successfully logged out. Please remove your token from client storage.' });
+    res.json({ message: 'Successfully logged out.' });
 });
 
 module.exports = router; 
